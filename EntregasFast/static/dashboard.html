@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <title>Panel de Cliente — Cargo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="ftco-32x32.png">
+
+  <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Oswald:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/icomoon/style.css">
+  <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dash-body">
+
+  <!-- Top bar -->
+  <div class="dash-topbar">
+    <div class="container-fluid">
+      <div class="dash-topbar-inner">
+        <a href="index.html" class="dash-logo">Cargo<span>.</span></a>
+        <nav class="dash-nav">
+          <a href="index.html" class="dash-back"><span class="icon-arrow-left"></span> Volver al sitio</a>
+          <a href="rastreo.html">Rastrear envío</a>
+          <a href="admin.html">Panel administrador</a>
+          <a href="dashboard.html" class="is-active">Panel de cliente</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-shell">
+
+    <!-- Header + switch -->
+    <div class="dash-head">
+      <div>
+        <div class="dash-eyebrow">Panel de cliente</div>
+        <h1 class="dash-title">Gestión de envíos</h1>
+        <p class="dash-sub">Sigue tus pedidos en tiempo real o registra un nuevo paquete para despacho terrestre.</p>
+      </div>
+
+      <div class="dash-switch" role="tablist" aria-label="Cambiar de panel">
+        <button type="button" class="is-active" data-panel="tracking" aria-selected="true">
+          <span class="icon-map-marker"></span> Seguimiento
+        </button>
+        <button type="button" data-panel="register" aria-selected="false">
+          <span class="flaticon-add"></span> Registrar paquete
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================= PANEL 1: SEGUIMIENTO ======================= -->
+    <section class="dash-panel is-active" id="panel-tracking">
+      <div class="track-grid">
+
+        <!-- Order list -->
+        <div class="track-list-card">
+          <div class="track-search">
+            <div class="input-wrap">
+              <span class="icon-search2"></span>
+              <input type="text" id="orderSearch" placeholder="Buscar por folio, remitente, ciudad...">
+            </div>
+            <div class="icon-filter2" title="Filtros" id="toggleFilters"></div>
+          </div>
+
+          <div class="track-chips" id="filterChips" style="display:none; flex-wrap:wrap; gap:8px; padding:10px 20px 0;">
+            <select id="fltEstado" style="border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px;">
+              <option value="">Todos los estados</option>
+            </select>
+            <select id="fltPrioridad" style="border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px;">
+              <option value="">Toda prioridad</option>
+              <option value="Estándar">Estándar</option>
+              <option value="Express">Express</option>
+              <option value="Urgente">Urgente</option>
+            </select>
+            <input type="text" id="fltCiudad" placeholder="Ciudad" style="border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px; width:110px;">
+          </div>
+
+          <div class="order-list" id="orderList">
+            <div class="empty-state">Cargando pedidos…</div>
+          </div>
+        </div>
+
+        <!-- Detail -->
+        <div class="detail-card" id="detailCard" style="display:none;">
+          <div class="detail-head">
+            <div class="oid">Folio: <span id="detailOid">—</span><small id="detailRoute">—</small></div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="doc-btn" id="btnDescargarHoja" style="border:none; cursor:pointer;"><span class="icon-download"></span> Documentación</button>
+            </div>
+          </div>
+
+          <div class="track-timeline">
+            <div class="tt-headline">
+              <h5>Historial de seguimiento</h5>
+              <span class="status-badge" id="detailStatusBadge">—</span>
+            </div>
+            <div class="tt-line" id="detailTimeline"></div>
+          </div>
+
+          <div class="pkg-summary-grid" id="detailSummary"></div>
+
+          <div class="detail-actions">
+            <button type="button" class="btn-outline btn-sm" id="btnVerQR"><span class="icon-map2"></span> Ver QR</button>
+            <button type="button" class="btn-ghost btn-sm" id="btnImprimir"><span class="icon-list2"></span> Imprimir</button>
+          </div>
+
+          <div class="info-block">
+            <h5 style="font-size:14px;margin-bottom:16px;">Información principal</h5>
+            <div class="info-tabs" role="tablist">
+              <button type="button" class="is-active" data-tab="pedido">Detalles del pedido</button>
+              <button type="button" data-tab="vehiculo">Vehículo</button>
+              <button type="button" data-tab="conductor">Conductor</button>
+              <button type="button" data-tab="cliente">Cliente</button>
+            </div>
+
+            <div class="info-pane is-active" data-pane="pedido">
+              <div class="detail-list" id="paneDetallesPedido"></div>
+            </div>
+            <div class="info-pane" data-pane="vehiculo">
+              <div class="detail-list" id="paneVehiculo"></div>
+            </div>
+            <div class="info-pane" data-pane="conductor">
+              <div class="detail-list" id="paneConductor"></div>
+            </div>
+            <div class="info-pane" data-pane="cliente">
+              <div class="detail-list" id="paneCliente"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" id="noSelection" style="grid-column: 2; padding:60px 20px;">
+          Selecciona un pedido de la lista para ver su seguimiento.
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================= PANEL 2: REGISTRAR PAQUETE ======================= -->
+    <section class="dash-panel" id="panel-register">
+      <div class="register-grid">
+
+        <form class="form-card" id="registerForm">
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="num">1</span> Remitente y destinatario</div>
+            <div class="field-grid">
+              <div class="field"><label>Remitente</label><input type="text" id="fSender" placeholder="Nombre o empresa" required></div>
+              <div class="field"><label>Teléfono remitente</label><input type="text" id="fSenderPhone" placeholder="+593 ..." required></div>
+              <div class="field"><label>Destinatario</label><input type="text" id="fReceiver" placeholder="Nombre o empresa" required></div>
+              <div class="field"><label>Teléfono destinatario</label><input type="text" id="fReceiverPhone" placeholder="+593 ..." required></div>
+              <div class="field"><label>Ciudad de origen</label><input type="text" id="fOrigin" placeholder="Ej. Guayaquil" required></div>
+              <div class="field"><label>Ciudad de destino</label><input type="text" id="fDest" placeholder="Ej. Quito" required></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="num">2</span> Detalles del paquete</div>
+            <div class="field-grid cols-3">
+              <div class="field"><label>Peso (kg)</label><input type="number" id="fWeight" placeholder="0" min="0" required></div>
+              <div class="field"><label>Volumen (m³)</label><input type="number" id="fVolume" placeholder="0" min="0" step="0.01"></div>
+              <div class="field"><label>Fecha de despacho</label><input type="date" id="fDate"></div>
+            </div>
+            <div class="field" style="margin-top:16px;">
+              <label>Descripción de la carga</label>
+              <textarea id="fDescription" placeholder="Detalle del contenido del paquete"></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="num">3</span> Tipo de servicio</div>
+            <div class="service-options" id="serviceOptions">
+              <div class="service-opt">
+                <input type="radio" name="service" id="svcLand" value="Terrestre" checked disabled>
+                <label for="svcLand"><span class="flaticon-lorry"></span> Terrestre</label>
+              </div>
+            </div>
+            <p style="font-size:12px; color:var(--muted); margin-top:8px;">Actualmente el sistema opera únicamente con transporte terrestre.</p>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="num">4</span> Prioridad de envío</div>
+            <div class="priority-options" id="priorityOptions">
+              <input type="radio" name="priority" id="pStd" value="Estándar" checked><label for="pStd">Estándar</label>
+              <input type="radio" name="priority" id="pExp" value="Express"><label for="pExp">Express</label>
+              <input type="radio" name="priority" id="pUrg" value="Urgente"><label for="pUrg">Urgente</label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="num">5</span> Conductor asignado</div>
+            <div class="field">
+              <label>Selecciona un conductor</label>
+              <select id="fConductor" required>
+                <option value="">— Selecciona —</option>
+              </select>
+              <p style="font-size:12px; color:var(--muted); margin-top:6px;">
+                ¿No aparece el conductor que buscas? <a href="admin.html#conductores">Regístralo aquí</a>.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="button" class="btn-ghost" id="clearForm">Limpiar</button>
+            <button type="submit" class="btn-brand">Registrar paquete</button>
+          </div>
+        </form>
+
+        <aside class="summary-card">
+          <div class="tag">Vista previa</div>
+          <h4>Nuevo folio</h4>
+          <p>Así se verá el pedido en tu panel de seguimiento apenas lo registres.</p>
+
+          <div class="summary-row"><span>Ruta</span><span id="prevRoute">— → —</span></div>
+          <div class="summary-row"><span>Peso</span><span id="prevWeight">— kg</span></div>
+          <div class="summary-row"><span>Servicio</span><span id="prevService">Terrestre</span></div>
+          <div class="summary-row"><span>Prioridad</span><span id="prevPriority">Estándar</span></div>
+
+          <div class="summary-id">
+            <div class="k">Folio asignado</div>
+            <div class="v" id="prevFolio">Se genera al registrar</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="dash-toast" id="dashToast">
+    <span class="icon-check-circle"></span>
+    <div>
+      <strong id="toastTitle">Paquete registrado</strong>
+      <span id="toastBody">El folio se agregó al panel de seguimiento.</span>
+    </div>
+  </div>
+
+  <!-- Modal QR -->
+  <div class="qr-modal-overlay" id="qrModalOverlay">
+    <div class="qr-modal">
+      <h5>Código QR de seguimiento</h5>
+      <p id="qrModalCodigo">—</p>
+      <div id="qrCanvasHolder"></div>
+      <button type="button" class="btn-ghost btn-sm close-qr" id="closeQrModal">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/hojaruta.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

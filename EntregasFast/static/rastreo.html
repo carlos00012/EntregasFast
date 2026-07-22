@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <title>Rastrear envío — Cargo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="ftco-32x32.png">
+
+  <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Oswald:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/icomoon/style.css">
+  <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dash-body">
+
+  <div class="dash-topbar">
+    <div class="container-fluid">
+      <div class="dash-topbar-inner">
+        <a href="index.html" class="dash-logo">Cargo<span>.</span></a>
+        <nav class="dash-nav">
+          <a href="index.html" class="dash-back"><span class="icon-arrow-left"></span> Volver al sitio</a>
+          <a href="dashboard.html">Panel de cliente</a>
+          <a href="admin.html">Panel administrador</a>
+          <a href="rastreo.html" class="is-active">Rastrear envío</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="rastreo-shell">
+    <h1 class="dash-title" style="margin-bottom:6px;">Rastrear envío</h1>
+    <p class="dash-sub" style="margin-bottom:24px;">Ingresa tu código de guía o escanea el QR de tu hoja de ruta.</p>
+
+    <div class="rastreo-search">
+      <input type="text" id="rCodigo" placeholder="Ej. CGO-2026-000001">
+      <button type="button" class="btn-brand" id="rBuscar">Buscar</button>
+    </div>
+
+    <div id="rResultado"></div>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script>
+    (function () {
+      var rCodigo = document.getElementById("rCodigo");
+      var rResultado = document.getElementById("rResultado");
+
+      function render(codigo) {
+        var p = Cargo.obtenerPaquete(codigo);
+        if (!p) {
+          rResultado.innerHTML = '<div class="empty-state" style="background:#fff; border:1px solid var(--line); border-radius:var(--radius);">No se encontró ningún envío con el código "' + codigo + '".</div>';
+          return;
+        }
+        var conductor = Cargo.obtenerConductor(p.conductorId);
+        var cls = Cargo.ESTADO_CLASS[p.estado] || "status-checking";
+
+        var timelineHTML = p.historial.slice().reverse().map(function (h, idx) {
+          return '<div class="tt-step done' + (idx === 0 ? " current" : "") + '">' +
+            '<div class="tt-dot"></div>' +
+            '<div class="tt-title">' + h.estado + '</div>' +
+            '<div class="tt-meta">' + h.fecha + ' · ' + h.hora + '</div>' +
+            (h.observacion ? '<div class="tt-obs">' + h.observacion + '</div>' : "") +
+            '</div>';
+        }).join("");
+
+        rResultado.innerHTML =
+          '<div class="rastreo-card">' +
+            '<div class="rastreo-head">' +
+              '<div><h3>' + p.codigo + '</h3><div class="route">' + p.origen + ' → ' + p.destino + '</div></div>' +
+              '<span class="status-badge ' + cls + '">' + p.estado + '</span>' +
+            '</div>' +
+            '<div class="pkg-summary-grid">' +
+              '<div class="stat"><div class="k">Fecha de envío</div><div class="v">' + p.fechaCreacion + '</div></div>' +
+              '<div class="stat"><div class="k">Conductor</div><div class="v">' + (conductor ? conductor.nombre + " " + conductor.apellido : "—") + '</div></div>' +
+              '<div class="stat"><div class="k">Vehículo</div><div class="v">' + (conductor ? conductor.placa : "—") + '</div></div>' +
+              '<div class="stat"><div class="k">Peso</div><div class="v">' + p.peso + ' kg</div></div>' +
+              '<div class="stat"><div class="k">Volumen</div><div class="v">' + (p.volumen || "—") + '</div></div>' +
+              '<div class="stat"><div class="k">Prioridad</div><div class="v">' + p.prioridad + '</div></div>' +
+            '</div>' +
+            '<div class="track-timeline">' +
+              '<div class="tt-headline"><h5>Historial de eventos</h5></div>' +
+              '<div class="tt-line">' + timelineHTML + '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      rBuscar.addEventListener("click", function () {
+        var v = rCodigo.value.trim().toUpperCase();
+        if (v) render(v);
+      });
+      rCodigo.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") rBuscar.click();
+      });
+
+      var params = new URLSearchParams(location.search);
+      var codigoParam = params.get("codigo");
+      if (codigoParam) {
+        rCodigo.value = codigoParam;
+        render(codigoParam.toUpperCase());
+      }
+    })();
+  </script>
+</body>
+</html>
