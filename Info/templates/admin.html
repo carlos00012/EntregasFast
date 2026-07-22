@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <title>Panel de Administrador — Cargo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="ftco-32x32.png">
+
+  <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Oswald:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/icomoon/style.css">
+  <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dash-body">
+
+  <div class="dash-topbar">
+    <div class="container-fluid">
+      <div class="dash-topbar-inner">
+        <a href="index.html" class="dash-logo">Cargo<span>.</span></a>
+        <nav class="dash-nav">
+          <a href="index.html" class="dash-back"><span class="icon-arrow-left"></span> Volver al sitio</a>
+          <a href="rastreo.html">Rastrear envío</a>
+          <a href="dashboard.html">Panel de cliente</a>
+          <a href="admin.html" class="is-active">Panel administrador</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-shell">
+
+    <div class="dash-head">
+      <div>
+        <div class="dash-eyebrow">Panel administrador</div>
+        <h1 class="dash-title">Operación y seguimiento</h1>
+        <p class="dash-sub">Gestiona paquetes, actualiza estados y administra el listado de conductores.</p>
+      </div>
+
+      <div class="dash-switch" role="tablist" aria-label="Cambiar de panel">
+        <button type="button" class="is-active" data-panel="paquetes" aria-selected="true">
+          <span class="icon-map-marker"></span> Paquetes
+        </button>
+        <button type="button" data-panel="conductores" aria-selected="false" id="tabConductores">
+          <span class="flaticon-add"></span> Conductores
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================= PANEL PAQUETES ======================= -->
+    <section class="dash-panel is-active" id="panel-paquetes">
+      <div class="admin-grid">
+
+        <div class="filters-card">
+          <h5>Filtros</h5>
+          <div class="field">
+            <label>Buscar</label>
+            <input type="text" id="aSearch" placeholder="Código, remitente, ciudad, conductor...">
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <select id="aEstado"><option value="">Todos</option></select>
+          </div>
+          <div class="field">
+            <label>Prioridad</label>
+            <select id="aPrioridad">
+              <option value="">Todas</option>
+              <option value="Estándar">Estándar</option>
+              <option value="Express">Express</option>
+              <option value="Urgente">Urgente</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Conductor</label>
+            <select id="aConductorFiltro"><option value="">Todos</option></select>
+          </div>
+          <div class="field">
+            <label>Ciudad (origen/destino)</label>
+            <input type="text" id="aCiudad" placeholder="Ej. Quito">
+          </div>
+          <div class="field">
+            <label>Fecha de registro</label>
+            <input type="text" id="aFecha" placeholder="dd/mm/aaaa">
+          </div>
+          <button type="button" class="btn-ghost btn-sm" id="aLimpiarFiltros" style="width:100%;">Limpiar filtros</button>
+        </div>
+
+        <div>
+          <div class="driver-table-card" style="margin-bottom:20px;">
+            <div class="driver-table-wrap">
+              <table class="driver-table" id="pkgTable">
+                <thead>
+                  <tr>
+                    <th>Código</th><th>Ruta</th><th>Remitente</th><th>Conductor</th>
+                    <th>Prioridad</th><th>Estado</th><th></th>
+                  </tr>
+                </thead>
+                <tbody id="pkgTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="driver-form-card" id="pkgDetailPanel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <h4 style="margin:0;">Folio <span id="pdCodigo"></span></h4>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="btn-outline btn-sm" id="pdVerQR">Ver QR</button>
+                <button type="button" class="btn-ghost btn-sm" id="pdDescargar">Descargar hoja de ruta</button>
+                <button type="button" class="btn-ghost btn-sm" id="pdImprimir">Imprimir</button>
+              </div>
+            </div>
+            <div class="pkg-summary-grid" style="padding:14px 0; border:0;" id="pdSummary"></div>
+
+            <div class="form-section" style="border-top:1px solid var(--line); padding-top:16px;">
+              <div class="form-section-title"><span class="num">✓</span> Actualizar seguimiento</div>
+              <div class="status-select-row">
+                <div class="field">
+                  <label>Nuevo estado</label>
+                  <select id="pdNuevoEstado"></select>
+                </div>
+                <div class="field" style="flex:2;">
+                  <label>Observación</label>
+                  <input type="text" id="pdObservacion" placeholder="Ej. Carga verificada en bodega central">
+                </div>
+                <button type="button" class="btn-brand" id="pdActualizar">Actualizar estado</button>
+              </div>
+            </div>
+
+            <div class="track-timeline" style="padding-left:0; padding-right:0;">
+              <div class="tt-headline"><h5>Historial completo</h5></div>
+              <div class="tt-line" id="pdTimeline"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= PANEL CONDUCTORES ======================= -->
+    <section class="dash-panel" id="panel-conductores">
+      <div class="drivers-wrap">
+
+        <div class="driver-form-card">
+          <h4 id="driverFormTitle">Registrar conductor</h4>
+          <form id="driverForm">
+            <input type="hidden" id="dId">
+            <div class="field"><label>Nombre</label><input type="text" id="dNombre" required></div>
+            <div class="field"><label>Apellido</label><input type="text" id="dApellido" required></div>
+            <div class="field"><label>Cédula</label><input type="text" id="dCedula" required></div>
+            <div class="field"><label>Licencia</label><input type="text" id="dLicencia" required></div>
+            <div class="field">
+              <label>Tipo de licencia</label>
+              <select id="dTipoLicencia">
+                <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+              </select>
+            </div>
+            <div class="field"><label>Teléfono</label><input type="text" id="dTelefono" required></div>
+            <div class="field"><label>Correo</label><input type="email" id="dCorreo"></div>
+            <div class="field"><label>Placa del vehículo</label><input type="text" id="dPlaca" required></div>
+            <div class="field"><label>Marca del vehículo</label><input type="text" id="dMarca"></div>
+            <div class="field"><label>Modelo del vehículo</label><input type="text" id="dModelo"></div>
+            <div class="field"><label>Observaciones</label><textarea id="dObservaciones" style="min-height:60px;"></textarea></div>
+
+            <div style="display:flex; gap:10px; margin-top:8px;">
+              <button type="submit" class="btn-brand" style="flex:1;">Guardar conductor</button>
+              <button type="button" class="btn-ghost" id="dCancelarEdicion" style="display:none;">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="driver-table-card">
+          <div class="driver-table-wrap">
+            <table class="driver-table">
+              <thead>
+                <tr>
+                  <th>Conductor</th><th>Cédula</th><th>Vehículo</th><th>Teléfono</th><th>Estado</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="driverTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="dash-toast" id="dashToast">
+    <span class="icon-check-circle"></span>
+    <div>
+      <strong id="toastTitle">Listo</strong>
+      <span id="toastBody">Acción completada.</span>
+    </div>
+  </div>
+
+  <div class="qr-modal-overlay" id="qrModalOverlay">
+    <div class="qr-modal">
+      <h5>Código QR de seguimiento</h5>
+      <p id="qrModalCodigo">—</p>
+      <div id="qrCanvasHolder"></div>
+      <button type="button" class="btn-ghost btn-sm close-qr" id="closeQrModal">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/hojaruta.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
