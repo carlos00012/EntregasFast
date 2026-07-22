@@ -1313,8 +1313,8 @@ h1, h2, h3, h4, h5,
       left: 0;
       right: 0;
       bottom: 0;
-      opacity: .95;
-      background: #377aff;
+      opacity: .65;
+      background: #9dafd4;
       background: -moz-linear-gradient(45deg, #377aff 0%, #00d9ff 100%);
       background: -webkit-gradient(left bottom, right top, color-stop(0%, #377aff), color-stop(100%, #00d9ff));
       background: -webkit-linear-gradient(45deg, #377aff 0%, #00d9ff 100%);
