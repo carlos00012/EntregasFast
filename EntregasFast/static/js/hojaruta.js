@@ -1,39 +1,54 @@
 /* ============================================================
    HOJARUTA.JS — Generación de la Hoja de Ruta en PDF
-   Usa jsPDF + QRCode.js + JsBarcode (cargados vía CDN).
+   Usa jsPDF + QRCode.js (Sin dependencia de JsBarcode).
    ============================================================ */
 (function (global) {
   "use strict";
 
-  function qrDataURL(text) {
-    return new Promise(function (resolve, reject) {
-      var holder = document.createElement("div");
-      /* eslint-disable no-undef */
-      new QRCode(holder, {
-        text: text,
-        width: 220,
-        height: 220,
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      setTimeout(function () {
-        var img = holder.querySelector("img");
-        var canvas = holder.querySelector("canvas");
-        if (canvas) {
-          resolve(canvas.toDataURL("image/png"));
-        } else if (img && img.src) {
-          resolve(img.src);
-        } else {
-          reject(new Error("No se pudo generar el QR."));
-        }
-      }, 120);
-    });
-  }
+  // Genera una imagen transparente de 1x1px en caso de error o ausencia de QR
+  var BLANK_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
-  function barcodeDataURL(text) {
-    var canvas = document.createElement("canvas");
-    /* eslint-disable no-undef */
-    JsBarcode(canvas, text, { format: "CODE128", displayValue: false, height: 40, margin: 0 });
-    return canvas.toDataURL("image/png");
+  function qrDataURL(text) {
+    return new Promise(function (resolve) {
+      if (typeof QRCode === "undefined") {
+        console.warn("Librería QRCode no disponible. Generando PDF sin QR.");
+        resolve(BLANK_IMG);
+        return;
+      }
+
+      try {
+        var holder = document.createElement("div");
+        holder.style.display = "none";
+        document.body.appendChild(holder);
+
+        /* eslint-disable no-undef */
+        new QRCode(holder, {
+          text: text,
+          width: 220,
+          height: 220,
+          correctLevel: (typeof QRCode.CorrectLevel !== "undefined") ? QRCode.CorrectLevel.M : 1
+        });
+
+        setTimeout(function () {
+          var img = holder.querySelector("img");
+          var canvas = holder.querySelector("canvas");
+          var src = null;
+
+          if (canvas) {
+            src = canvas.toDataURL("image/png");
+          } else if (img && img.src) {
+            src = img.src;
+          }
+
+          document.body.removeChild(holder);
+          resolve(src || BLANK_IMG);
+        }, 120);
+
+      } catch (err) {
+        console.warn("Error al intentar construir el QR:", err);
+        resolve(BLANK_IMG);
+      }
+    });
   }
 
   function urlRastreo(codigo) {
@@ -49,10 +64,20 @@
     }
     var conductor = Cargo.obtenerConductor(paquete.conductorId);
 
-    Promise.resolve(qrDataURL(urlRastreo(codigo))).then(function (qrImg) {
-      var barImg = barcodeDataURL(codigo);
-      /* eslint-disable no-undef */
-      var doc = new jspdf.jsPDF({ unit: "pt", format: "a4" });
+    qrDataURL(urlRastreo(codigo)).then(function (qrImg) {
+
+      // Compatibilidad segura con distintas versiones de jsPDF
+      var jsPDFClass = null;
+      if (typeof jspdf !== "undefined" && jspdf.jsPDF) {
+        jsPDFClass = jspdf.jsPDF;
+      } else if (typeof window.jsPDF !== "undefined") {
+        jsPDFClass = window.jsPDF;
+      } else {
+        alert("Error: La librería jsPDF no está disponible.");
+        return;
+      }
+
+      var doc = new jsPDFClass({ unit: "pt", format: "a4" });
       var pageW = doc.internal.pageSize.getWidth();
       var margin = 40;
       var y = 40;
@@ -77,12 +102,15 @@
       y = 100;
       doc.setTextColor(28, 35, 51);
 
-      /* QR + barcode a la derecha */
-      doc.addImage(qrImg, "PNG", pageW - margin - 90, y, 90, 90);
-      doc.addImage(barImg, "PNG", pageW - margin - 130, y + 96, 130, 30);
-      doc.setFontSize(8);
+      /* QR a la derecha */
+      if (qrImg !== BLANK_IMG) {
+        doc.addImage(qrImg, "PNG", pageW - margin - 100, y, 100, 100);
+      }
+
+      // Texto con el código debajo del QR
+      doc.setFontSize(8.5);
       doc.setTextColor(120, 120, 120);
-      doc.text(codigo, pageW - margin - 65, y + 136, { align: "center" });
+      doc.text(codigo, pageW - margin - 50, y + 112, { align: "center" });
       doc.setTextColor(28, 35, 51);
 
       function section(title, rows, startY, width) {
@@ -144,22 +172,25 @@
       doc.line(margin, y, pageW - margin, y);
       y += 16;
       doc.setFontSize(9);
-      paquete.historial.forEach(function (h) {
-        if (y > 740) { doc.addPage(); y = 40; }
-        doc.setFont("helvetica", "bold");
-        doc.text(h.estado, margin, y);
-        doc.setFont("helvetica", "normal");
-        doc.text(h.fecha + " " + h.hora + " · " + h.usuario, margin + 160, y);
-        if (h.observacion) {
-          y += 12;
-          doc.setFontSize(8.5);
-          doc.setTextColor(110, 110, 110);
-          doc.text(h.observacion, margin + 10, y, { maxWidth: pageW - margin * 2 - 10 });
-          doc.setTextColor(28, 35, 51);
-          doc.setFontSize(9);
-        }
-        y += 16;
-      });
+
+      if (paquete.historial && paquete.historial.length) {
+        paquete.historial.forEach(function (h) {
+          if (y > 740) { doc.addPage(); y = 40; }
+          doc.setFont("helvetica", "bold");
+          doc.text(h.estado, margin, y);
+          doc.setFont("helvetica", "normal");
+          doc.text(h.fecha + " " + h.hora + " · " + h.usuario, margin + 160, y);
+          if (h.observacion) {
+            y += 12;
+            doc.setFontSize(8.5);
+            doc.setTextColor(110, 110, 110);
+            doc.text(h.observacion, margin + 10, y, { maxWidth: pageW - margin * 2 - 10 });
+            doc.setTextColor(28, 35, 51);
+            doc.setFontSize(9);
+          }
+          y += 16;
+        });
+      }
 
       /* Firmas */
       if (y > 700) { doc.addPage(); y = 60; }
@@ -174,18 +205,22 @@
 
       /* Pie de página en todas las páginas */
       var totalPages = doc.internal.getNumberOfPages();
+      var nowStr = (typeof Cargo !== "undefined" && Cargo.nowParts) 
+        ? Cargo.nowParts().fecha + " " + Cargo.nowParts().hora 
+        : new Date().toLocaleString();
+
       for (var i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         var ph = doc.internal.pageSize.getHeight();
         doc.setFontSize(8);
         doc.setTextColor(140, 140, 140);
-        doc.text("Impreso: " + Cargo.nowParts().fecha + " " + Cargo.nowParts().hora, margin, ph - 20);
+        doc.text("Impreso: " + nowStr, margin, ph - 20);
         doc.text("Página " + i + " de " + totalPages, pageW - margin, ph - 20, { align: "right" });
       }
 
       doc.save("hoja-de-ruta-" + codigo + ".pdf");
     }).catch(function (err) {
-      alert("Error al generar el PDF: " + err.message);
+      alert("Error inesperado al generar el PDF: " + err.message);
     });
   }
 

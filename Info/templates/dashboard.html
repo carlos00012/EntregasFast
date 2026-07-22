@@ -25,6 +25,11 @@
           <a href="/rastreo/">Rastrear envío</a>
           <a href="/admin-panel/">Panel administrador</a>
           <a href="/dashboard/" class="is-active">Panel de cliente</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'logout_admin' %}" class="btn-logout">Cerrar Sesión</a>
+          {% else %}
+            <a href="{% url 'login_admin' %}" class="btn">Acceso Administrador</a>
+          {% endif %}
         </nav>
       </div>
     </div>
@@ -141,30 +146,33 @@
     <section class="dash-panel" id="panel-register">
       <div class="register-grid">
 
-        <form class="form-card" id="registerForm">
+        <form class="form-card" id="registerForm" method="POST" action="{% url 'dashboard_cliente' %}">
+          {% csrf_token %}
 
           <div class="form-section">
             <div class="form-section-title"><span class="num">1</span> Remitente y destinatario</div>
             <div class="field-grid">
-              <div class="field"><label>Remitente</label><input type="text" id="fSender" placeholder="Nombre o empresa" required></div>
-              <div class="field"><label>Teléfono remitente</label><input type="text" id="fSenderPhone" placeholder="+593 ..." required></div>
-              <div class="field"><label>Destinatario</label><input type="text" id="fReceiver" placeholder="Nombre o empresa" required></div>
-              <div class="field"><label>Teléfono destinatario</label><input type="text" id="fReceiverPhone" placeholder="+593 ..." required></div>
-              <div class="field"><label>Ciudad de origen</label><input type="text" id="fOrigin" placeholder="Ej. Guayaquil" required></div>
-              <div class="field"><label>Ciudad de destino</label><input type="text" id="fDest" placeholder="Ej. Quito" required></div>
+              <div class="field"><label>Remitente</label><input type="text" id="fSender" name="remitente" placeholder="Nombre o empresa" required></div>
+              <div class="field"><label>Teléfono remitente</label><input type="text" id="fSenderPhone" name="remitente_telefono" placeholder="+593 ..." required></div>
+              <div class="field"><label>Destinatario</label><input type="text" id="fReceiver" name="destinatario" placeholder="Nombre o empresa" required></div>
+              <div class="field"><label>Teléfono destinatario</label><input type="text" id="fReceiverPhone" name="destinatario_telefono" placeholder="+593 ..." required></div>
+              <div class="field"><label>Ciudad de origen</label><input type="text" id="fOrigin" name="origen" placeholder="Ej. Guayaquil" required></div>
+              
+              <div class="field"><label>Ciudad de destino</label><input type="text" id="fDest" name="destino" placeholder="Ej. Quito" required></div>
+              <div class="field"><label>Correo destinatario</label><input type="email" id="fReceiverEmail" name="destinatario_correo" placeholder="correo@ejemplo.com" required></div>
             </div>
           </div>
 
           <div class="form-section">
             <div class="form-section-title"><span class="num">2</span> Detalles del paquete</div>
             <div class="field-grid cols-3">
-              <div class="field"><label>Peso (kg)</label><input type="number" id="fWeight" placeholder="0" min="0" required></div>
-              <div class="field"><label>Volumen (m³)</label><input type="number" id="fVolume" placeholder="0" min="0" step="0.01"></div>
-              <div class="field"><label>Fecha de despacho</label><input type="date" id="fDate"></div>
+              <div class="field"><label>Peso (kg)</label><input type="number" id="fWeight" name="peso" placeholder="0" min="0" step="0.01" required></div>
+              <div class="field"><label>Volumen (m³)</label><input type="number" id="fVolume" name="volumen" placeholder="0" min="0" step="0.01"></div>
+              <div class="field"><label>Fecha de despacho</label><input type="date" id="fDate" name="fecha_despacho"></div>
             </div>
             <div class="field" style="margin-top:16px;">
               <label>Descripción de la carga</label>
-              <textarea id="fDescription" placeholder="Detalle del contenido del paquete"></textarea>
+              <textarea id="fDescription" name="descripcion" placeholder="Detalle del contenido del paquete"></textarea>
             </div>
           </div>
 
@@ -182,9 +190,9 @@
           <div class="form-section">
             <div class="form-section-title"><span class="num">4</span> Prioridad de envío</div>
             <div class="priority-options" id="priorityOptions">
-              <input type="radio" name="priority" id="pStd" value="Estándar" checked><label for="pStd">Estándar</label>
-              <input type="radio" name="priority" id="pExp" value="Express"><label for="pExp">Express</label>
-              <input type="radio" name="priority" id="pUrg" value="Urgente"><label for="pUrg">Urgente</label>
+              <input type="radio" name="prioridad" id="pStd" value="Estándar" checked><label for="pStd">Estándar</label>
+              <input type="radio" name="prioridad" id="pExp" value="Express"><label for="pExp">Express</label>
+              <input type="radio" name="prioridad" id="pUrg" value="Urgente"><label for="pUrg">Urgente</label>
             </div>
           </div>
 
@@ -192,11 +200,14 @@
             <div class="form-section-title"><span class="num">5</span> Conductor asignado</div>
             <div class="field">
               <label>Selecciona un conductor</label>
-              <select id="fConductor" required>
+              <select id="fConductor" name="conductor" required>
                 <option value="">— Selecciona —</option>
+                {% for conductor in conductores %}
+                  <option value="{{ conductor.id }}">{{ conductor.nombre }} {{ conductor.apellido }} ({{ conductor.placa_vehiculo }})</option>
+                {% endfor %}
               </select>
               <p style="font-size:12px; color:var(--muted); margin-top:6px;">
-                ¿No aparece el conductor que buscas? <a href="admin.html#conductores">Regístralo aquí</a>.
+                ¿No aparece el conductor que buscas? <a href="/admin-panel/#conductores">Regístralo aquí</a>.
               </p>
             </div>
           </div>
@@ -238,16 +249,18 @@
   <!-- Modal QR -->
   <div class="qr-modal-overlay" id="qrModalOverlay">
     <div class="qr-modal">
-      <h5>Código QR de seguimiento</h5>
+      ##### Código QR de seguimiento
       <p id="qrModalCodigo">—</p>
       <div id="qrCanvasHolder"></div>
       <button type="button" class="btn-ghost btn-sm close-qr" id="closeQrModal">Cerrar</button>
     </div>
   </div>
 
-  <script src="{% static 'js/jspdf.umd.min.js' %}"></script>
-  <script src="{% static 'js/qrcode.min.js' %}"></script>
-  <script src="{% static 'js/JsBarcode.all.min.js' %}"></script>
+  <!-- Librerías desde CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Tus scripts locales -->
   <script src="{% static 'js/core.js' %}"></script>
   <script src="{% static 'js/hojaruta.js' %}"></script>
   <script src="{% static 'js/dashboard.js' %}"></script>

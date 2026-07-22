@@ -51,6 +51,7 @@ class Paquete(models.Model):
     remitente_telefono = models.CharField(max_length=20)
     destinatario_nombre = models.CharField(max_length=150)
     destinatario_telefono = models.CharField(max_length=20)
+    destinatario_correo = models.EmailField(verbose_name="Correo del Destinatario", null=True, blank=True)
     
     # Ruta y Detalles
     origen = models.CharField(max_length=100)

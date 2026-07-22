@@ -1,20 +1,13 @@
-#Archivo para gestionar las rutas internas dela aplicacion Info
 from django.urls import path
-#Importamos la lógica de negocio de la aplicación
 from . import views
-#Listadp de rutas de la Aplicación
+
 urlpatterns = [
-    # INICIO PRINCIPAL
-    path('', views.inicio),
-    
-    # PANEL ADMINISTRADOR
-    path('admin-panel/', views.admin_panel),
-    path('conductor/guardar/', views.guardar_conductor),
-    path('paquete/<int:paquete_id>/actualizar-estado/', views.actualizar_estado_paquete),
-    
-    # PANEL CLIENTE / DASHBOARD
-    path('dashboard/', views.dashboard_cliente),
-    
-    # RASTREO DE ENVÍOS
-    path('rastreo/', views.rastreo_envio),
+    path('', views.inicio, name='inicio'),
+    path('login-admin/', views.login_admin, name='login_admin'),
+    path('logout-admin/', views.logout_admin, name='logout_admin'),
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('guardar-conductor/', views.guardar_conductor, name='guardar_conductor'),
+    path('actualizar-estado/<int:paquete_id>/', views.actualizar_estado_paquete, name='actualizar_estado_paquete'),
+    path('dashboard/', views.dashboard_cliente, name='dashboard_cliente'),
+    path('rastreo/', views.rastreo_envio, name='rastreo_envio'),
 ]
