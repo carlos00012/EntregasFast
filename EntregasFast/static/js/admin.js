@@ -230,51 +230,10 @@
     });
     fillConductorFilter();
   }
+  driverForm.addEventListener("submit", function(e){
 
-  driverForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var data = {
-      nombre: document.getElementById("dNombre").value.trim(),
-      apellido: document.getElementById("dApellido").value.trim(),
-      cedula: document.getElementById("dCedula").value.trim(),
-      licencia: document.getElementById("dLicencia").value.trim(),
-      tipoLicencia: document.getElementById("dTipoLicencia").value,
-      telefono: document.getElementById("dTelefono").value.trim(),
-      correo: document.getElementById("dCorreo").value.trim(),
-      placa: document.getElementById("dPlaca").value.trim(),
-      marca: document.getElementById("dMarca").value.trim(),
-      modelo: document.getElementById("dModelo").value.trim(),
-      observaciones: document.getElementById("dObservaciones").value.trim(),
-      estado: "Activo"
-    };
-
-    if (!data.nombre || !data.apellido || !data.cedula || !data.licencia || !data.telefono || !data.placa) {
-      showToast("Faltan datos", "Completa los campos obligatorios del conductor.");
-      return;
-    }
-
-    var editId = dId.value || null;
-    if (editId) {
-      var existente = Cargo.obtenerConductor(editId);
-      data.estado = existente.estado;
-    }
-
-    if (Cargo.existeDuplicadoConductor(data, editId)) {
-      showToast("Conductor duplicado", "Ya existe un conductor con esa cédula o placa.");
-      return;
-    }
-
-    try {
-      var conductor = Cargo.guardarConductor(data, editId);
-      showToast(editId ? "Conductor actualizado" : "Conductor registrado", conductor.nombre + " " + conductor.apellido + " guardado correctamente.");
-      limpiarFormularioConductor();
-      renderDriverTable();
-      fillConductorFilter();
-    } catch (err) {
-      showToast("Error", err.message);
-    }
-  });
-
+});
+ 
   driverTableBody.addEventListener("click", function (e) {
     var btn = e.target.closest("button[data-action]");
     if (!btn) return;
