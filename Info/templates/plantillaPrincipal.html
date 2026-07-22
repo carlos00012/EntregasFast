@@ -4,14 +4,12 @@
 <html lang="en">
 
   <head>
-    <title>Cargo &mdash; Free Website Template by Free-Template.co</title>
-    <meta charset="utf-8">
+    <title>EntregasFast | Sistema de Gestión de Envíos</title>    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     <meta name="author" content="Free-Template.co" />
-    <link rel="shortcut icon" href="{% static 'images/ftco-32x32.png' %}">
-
+    <link rel="shortcut icon" href="{% static 'images/logo.png' %}">
     <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,700|Oswald:400,700" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}">
@@ -53,41 +51,59 @@
 
       <header class="site-navbar js-sticky-header site-navbar-target" role="banner">
 
-        <div class="container">
-          <div class="row align-items-center position-relative">
+    <div class="container">
+        <div class="row align-items-center">
 
+            <!-- Logo -->
+            <div class="col-lg-3 col-md-3">
+                <a href="/" class="d-flex align-items-center text-decoration-none">
 
-            <div class="site-logo">
-              <a href="/" class="text-black"><span class="text-primary">Cargo</a>
+                    <img src="{% static 'images/img.png' %}"
+                         style="height:55px;width:auto;">
+
+                    <div class="ml-2">
+                        <h4 style="margin:0;font-weight:700;color:#0A2A66;">
+                            Entregas<span style="color:#ff7b00;">Fast</span>
+                        </h4>
+                        <small style="color:#666;">
+                            Rápido • Seguro • Confiable
+                        </small>
+                    </div>
+
+                </a>
             </div>
 
-            <div class="col-12">
-              <nav class="site-navigation text-right ml-auto " role="navigation">
+            <!-- Menú -->
+            <div class="col-lg-9 text-right">
 
-                <ul class="site-menu main-menu js-clone-nav ml-auto d-none d-lg-block">
-                  <li><a href="/" class="nav-link">Home</a></li>
+                <nav class="site-navigation">
 
+                    <ul class="site-menu main-menu js-clone-nav d-none d-lg-block">
 
+                        <li><a href="/">Inicio</a></li>
 
+                        <li><a href="/dashboard/">Panel Cliente</a></li>
 
+                        <li><a href="/admin-panel/">Panel Administrador</a></li>
 
+                        <li><a href="/rastreo/">Rastrear</a></li>
 
-                  <li><a href="/dashboard/" class="nav-link text-primary">Client Panel</a></li>
-                  <li><a href="/admin-panel/" class="nav-link text-primary">Admin Panel</a></li>
-                  <li><a href="/rastreo/" class="nav-link text-primary">Rastrear envío</a></li>
-                  <a href="{% url 'login_admin' %}" class="btn">Acceso Administrador</a>
-                  <a href="{% url 'logout_admin' %}" class="btn-logout">Cerrar Sesión</a>
-                </ul>
-              </nav>
+                        <li>
+                            <a href="{% url 'login_admin' %}">
+                                Ingresar
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </nav>
 
             </div>
 
-            <div class="toggle-button d-inline-block d-lg-none"><a href="#" class="site-menu-toggle py-5 js-menu-toggle text-black"><span class="icon-menu h3"></span></a></div>
-
-          </div>
         </div>
+    </div>
 
-      </header>
+</header>
 
 
 {% block contenido %}
@@ -100,7 +116,7 @@
             <div class="row">
               <div class="col-md-7">
                 <h2 class="footer-heading mb-4">About Us</h2>
-                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. </p>
+                <p>Far far away, countries Vokalia and Consonantia, there live the blind texts. </p>
               </div>
               <div class="col-md-4 ml-auto">
                 <h2 class="footer-heading mb-4">Features</h2>
