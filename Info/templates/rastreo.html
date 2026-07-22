@@ -1,28 +1,29 @@
+{% load static %}
 <!doctype html>
 <html lang="es">
 <head>
   <title>Rastrear envío — Cargo</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="shortcut icon" href="ftco-32x32.png">
+  <link rel="shortcut icon" href="{% static 'ftco-32x32.png' %}">
 
   <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Oswald:400,600,700" rel="stylesheet">
-  <link rel="stylesheet" href="fonts/icomoon/style.css">
-  <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}">
+  <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body class="dash-body">
 
   <div class="dash-topbar">
     <div class="container-fluid">
       <div class="dash-topbar-inner">
-        <a href="index.html" class="dash-logo">Cargo<span>.</span></a>
+        <a href="/" class="dash-logo">Cargo<span>.</span></a>
         <nav class="dash-nav">
-          <a href="index.html" class="dash-back"><span class="icon-arrow-left"></span> Volver al sitio</a>
-          <a href="dashboard.html">Panel de cliente</a>
-          <a href="admin.html">Panel administrador</a>
-          <a href="rastreo.html" class="is-active">Rastrear envío</a>
+          <a href="/" class="dash-back"><span class="icon-arrow-left"></span> Volver al sitio</a>
+          <a href="/dashboard/">Panel de cliente</a>
+          <a href="/admin-panel/">Panel administrador</a>
+          <a href="/rastreo/" class="is-active">Rastrear envío</a>
         </nav>
       </div>
     </div>
