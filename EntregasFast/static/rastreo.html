@@ -93,12 +93,6 @@
         if (e.key === "Enter") rBuscar.click();
       });
 
-      var params = new URLSearchParams(location.search);
-      var codigoParam = params.get("codigo");
-      if (codigoParam) {
-        rCodigo.value = codigoParam;
-        render(codigoParam.toUpperCase());
-      }
     })();
   </script>
 </body>
