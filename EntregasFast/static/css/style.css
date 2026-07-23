@@ -1413,3 +1413,22 @@ h1, h2, h3, h4, h5,
 
 .bg-light {
   background-color: #f6f5f5 !important; }
+
+  .site-navbar{
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,.1);
+}
+
+.site-navbar .site-logo img{
+    height: 55px;
+    width: auto;
+}
+
+.site-navbar .site-menu > li > a{
+    color: #0A2A66 !important;
+    font-weight: 600;
+}
+
+.site-navbar .site-menu > li > a:hover{
+    color: #ff7a00 !important;
+}
